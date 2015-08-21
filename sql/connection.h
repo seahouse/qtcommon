@@ -1,7 +1,7 @@
 #ifndef CONNECTION
 #define CONNECTION
 
-#include "sglobal.h"
+#include "configglobal.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -14,19 +14,17 @@ static bool createConnection()
     if (!db.isValid())
     {
         db = QSqlDatabase::addDatabase("QMYSQL");
-        db.setHostName(DB_HOST);
-        db.setDatabaseName(DB_DATABASE);
-        db.setUserName(DB_USERNAME);
-        db.setPassword(DB_PASSWORD);
+        db.setHostName(g_config.sqlServer());
+        db.setDatabaseName(g_config.sqlDatabase());
+        db.setUserName(g_config.sqlUsername());
+        db.setPassword(g_config.sqlPassword());
     }
 
     if (!db.open()) {
         QMessageBox::critical(0, QObject::tr("Cannot open database"),
-            QObject::tr("Unable to establish a database connection.\n"
-                     "This example needs SQLite support. Please read "
-                     "the Qt SQL driver documentation for information how "
-                     "to build it.\n\n"
-                     "Click Cancel to exit."), QMessageBox::Cancel);
+            QString(QObject::tr("连接数据库失败: ") + db.lastError().text() + "\n" +
+                     QObject::tr("请确保连接信息正确，如需帮助，请与数据管理员联系。\n\n") +
+                     QObject::tr("点击'取消'键关闭。")), QMessageBox::Cancel);
         return false;
     }
 
